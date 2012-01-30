@@ -1,5 +1,23 @@
 var http = require('http'),
     mockServer = null,
+    about = {
+        _id: 'abc123',
+        profile: 
+        {
+            link: 'http://www.example.com/profiles/abc123',
+            name: {
+                last: 'Smith', 
+                first: 'John'
+            },
+            provider: 'google',
+            email: 'test@example.com',
+            identifier: '12345678901234567890'
+        },
+        api_key: '12345678-12345678-12345678-12345678',
+        created_at: '2011/01/01 00:00:00 +0000',
+        updated_at: '2012/01/01 00:00:00 +0000',
+        uuid: 'mu-12345678'
+    },
     status = {
         _id: 'a123',
         ok: true,
@@ -77,7 +95,7 @@ var http = require('http'),
 module.exports.mockServer = http.createServer(function (request, response) {
     if (request.url === '/api/1/curl/execute') {
         var data = '';
-        request.addListener('data', function(chunk) { data += chunk; });
+        request.addListener('data', function(chunk) {data += chunk;});
         request.addListener('end', function() {
             var parsedData = JSON.parse(data);
             if (parsedData.steps[0].timeout) {
@@ -95,7 +113,7 @@ module.exports.mockServer = http.createServer(function (request, response) {
         });        
     }
     else if (request.url === '/login/api') {
-        response.writeHead(200, {'content-type': 'application/json' });
+        response.writeHead(200, {'content-type': 'application/json'});
         if(request.headers['x-api-user'] === process.env['BLITZ_API_USER'] &&
             request.headers['x-api-key'] === 'key') {
             
@@ -107,19 +125,23 @@ module.exports.mockServer = http.createServer(function (request, response) {
     }
     else if (request.url === '/api/1/jobs/a123/status') {
         status.status = 'completed';
-        response.writeHead(200, {'content-type': 'application/json' });
+        response.writeHead(200, {'content-type': 'application/json'});
         response.end(JSON.stringify(status));
     }
     else if (request.url === '/api/1/jobs/b123/status') {
         status._id = 'b123';
         status.status = 'running';
-        response.writeHead(200, {'content-type': 'application/json' });
+        response.writeHead(200, {'content-type': 'application/json'});
         response.end(JSON.stringify(status));
     }
     else if (request.url === '/api/1/jobs/c123/status') {
         timeline.status = 'completed';
-        response.writeHead(200, {'content-type': 'application/json' });
+        response.writeHead(200, {'content-type': 'application/json'});
         response.end(JSON.stringify(timeline));
+    }
+    else if (request.url === '/api/1/account/about') {
+        response.writeHead(200, {'content-type': 'application/json'});
+        response.end(JSON.stringify(about));
     }
     response.writeHead(404);
 });

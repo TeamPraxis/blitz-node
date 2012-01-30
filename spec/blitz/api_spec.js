@@ -101,4 +101,49 @@ describe("API Client", function () {
             });
         });
     });
+
+    describe("about", function () {
+        it("should return _id", function () {
+            var finished = false;
+            runs (function() {
+                client.about(function (result) {
+                    expect(result).toBeDefined();
+                    expect(result['_id']).toBeDefined();
+                    expect(result['_id']).toEqual('abc123');
+                    finished = true;
+                });
+            });
+            waitsFor(function () {
+                return finished;
+            });
+        });
+
+        it("should return a API key", function () {
+            var finished = false;
+            runs (function() {
+                client.about(function (result) {
+                    expect(result).toBeDefined();
+                    expect(result.api_key).toEqual('12345678-12345678-12345678-12345678');
+                    finished = true;
+                });
+            });
+            waitsFor(function () {
+                return finished;
+            });
+        });
+        
+        it("should return UUID", function () {
+            var finished = false;
+            runs (function() {
+                client.about(function (result) {
+                    expect(result).toBeDefined();
+                    expect(result.uuid).toEqual('mu-12345678');
+                    finished = true;
+                });
+            });
+            waitsFor(function () {
+                return finished;
+            });
+        });
+    });
 });

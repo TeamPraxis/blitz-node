@@ -117,7 +117,7 @@ describe("Blitz", function () {
         expect(b.authenticated).toBeTruthy();
     });
     
-    it("should authenticates", function () {
+    it("should authenticate", function () {
         var finished = false;
         runs (function() {
             expect(blitz.authenticated).toBeFalsy();
@@ -131,6 +131,19 @@ describe("Blitz", function () {
                     expect(blitz.authenticated).toBeTruthy();
                     finished = true;
                 });
+        });
+        waitsFor(function () {
+            return finished;
+        });
+    });
+    
+    it("should get account information", function () {
+        var finished = false;
+        runs (function() {
+            blitz.about(function (data) {
+                expect(data['_id']).toEqual('abc123');
+                finished = true;
+            });
         });
         waitsFor(function () {
             return finished;
