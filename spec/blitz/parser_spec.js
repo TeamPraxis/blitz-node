@@ -191,15 +191,21 @@ describe("Parser", function () {
     describe('region', function () {
         it('should set the region in the options', function () {
             [ '--region', '-r' ].forEach(function (v) {
-                [ 'california', 'oregon', 'virginia', 'singapore', 'japan', 'ireland' ].forEach(function (r) {
+                [ 'california', 'oregon', 'virginia', 'singapore', 'japan', 'ireland', 'brazil' ].forEach(function (r) {
                     var options = parser.parse(v + ' ' + r + ' blitz.io');
                     expect(options.region).toEqual(r);
                 });
             });
-            
+        });
+        
+        it('should fail if no region is given', function () {
             expect(function () {
-                parser.parse('-r foo blitz.io');
-            }).toThrow('region must be one of california, oregon, virginia, singapore, japan or ireland');
+                parser.parse('-r');
+            }).toThrow('missing value for -r');
+
+            expect(function () {
+                parser.parse('-r blitz.io');
+            }).toThrow('no URL specified!');
         });
     });
     
