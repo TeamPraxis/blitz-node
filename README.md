@@ -21,7 +21,7 @@ Then
 **Sprint**
 
 ```javascript
-var Blitz = require('../blitz-node/lib/blitz.js');
+var Blitz = require('blitz-node');
 
 console.log('Starting Sprint...');
 new Blitz('<email>','<api-key>').sprint({
@@ -33,11 +33,12 @@ new Blitz('<email>','<api-key>').sprint({
 }).on('status', function (data) {
     process.stdout.write('.');
 }).on('complete', function (data) {
+    var steps, i, step;
     console.log('region: ' + data.region);
     console.log('duration: ' + data.duration);
-    var steps = data.steps;
-    for(var i in steps) {
-        var step = steps[i];
+    steps = data.steps;
+    for(i in steps) {
+        step = steps[i];
         console.log("> Step " + i);
         console.log("\tstatus: " + step.response.status);
         console.log("\tduration: " + step.duration);
@@ -58,18 +59,19 @@ console.log('Starting Rush...');
 new Blitz('<email>','<api-key>').rush({
     steps: [
         {url: 'http://your.cool.app'},
-        {url: 'http://your.cool.ap/page1'}
+        {url: 'http://your.cool.app/page1'}
     ],
     region: 'california',
     pattern: { intervals: [{start: 1, end: 10, duration: 30}]}
 }).on('status', function (data) {
     process.stdout.write('.');
 }).on('complete', function (data) {
+    var steps, i, step;
     console.log('region: ' + data.region);
     console.log('duration: ' + data.duration);
-    var steps = data.steps;
-    for(var i in steps) {
-        var step = steps[i];
+    steps = data.steps;
+    for(i in steps) {
+        step = steps[i];
         console.log("> Step " + i);
         console.log("\tstatus: " + step.response.status);
         console.log("\tduration: " + step.duration);
