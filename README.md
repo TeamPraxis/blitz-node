@@ -83,7 +83,7 @@ new Blitz('<email>','<api-key>').rush({
 });
 ```
 
-*** or using the API parser ***
+**or using the API parser**
 
 The parser will expects a text and will recognize the type of test at runtime.
 
