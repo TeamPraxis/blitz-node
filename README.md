@@ -82,3 +82,35 @@ new Blitz('<email>','<api-key>').rush({
     console.log("reason: " + response.reason);
 });
 ```
+
+*** or using the API parser ***
+
+The parser will expects a text and will recognize the type of test at runtime.
+
+```javascript
+var Blitz = require('blitz');
+
+console.log('Starting Test...');
+new Blitz('<email>','<api-key>').execute('-p 1-100:60 http://your.cool.app').on('status', function (data) {
+    process.stdout.write('.');
+}).on('complete', function (data) {
+    var steps, i, step;
+    console.log('region: ' + data.region);
+    console.log('duration: ' + data.duration);
+    steps = data.steps;
+    for(i in steps) {
+        step = steps[i];
+        console.log("> Step " + i);
+        console.log("\tstatus: " + step.response.status);
+        console.log("\tduration: " + step.duration);
+        console.log("\tconnect: " + step.connect);
+    }
+}).on('error', function (response) {
+    console.log("error: " + response.error);    
+    console.log("reason: " + response.reason);
+});
+```
+
+
+
+

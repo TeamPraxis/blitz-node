@@ -55,7 +55,7 @@ describe("Runner", function () {
         });        
     });
 
-    it('should retusn a parser error', function () {
+    it('should return a parser error', function () {
         process.env['BLITZ_API_USER'] = 'user3';
         runner = new Runner({username: 'user3', apiKey: 'key', host: 'localhost', port: 9295});
         var finished = false;
