@@ -1,4 +1,5 @@
 var testServerPort = 9295,
+    helper = require('../helper'),
     Rush = require('../../lib/blitz/rush'),
     credentials = {username: 'user', apiKey: 'key', host: 'localhost', port: 9295};
 
@@ -6,9 +7,16 @@ describe("Rush", function () {
     var rush;
     
     beforeEach(function() {
+        // Test server. Will be handling the requests sent by the tests.
+        helper.mockServer.listen(testServerPort);
+
         rush = new Rush();
     });
     
+    afterEach(function () {
+        helper.mockServer.close();
+    });
+
     it("should have a Result object", function () {
         var finished = false;
         runs (function() {

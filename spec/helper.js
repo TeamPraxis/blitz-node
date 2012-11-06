@@ -18,6 +18,15 @@ var http = require('http'),
         updated_at: '2012/01/01 00:00:00 +0000',
         uuid: 'mu-12345678'
     },
+    parseSprint = {ok: true, command: {
+            steps: [{ url: 'http://127.0.0.1'}, { url: 'http://127.0.0.1/2'}]
+        }
+    },
+    parseRush = {ok: true, command: {
+            steps: [{ url: 'http://127.0.0.1', user: 'c123'}, { url: 'http://127.0.0.1/2'}],
+            pattern: {iterations: 1, intervals: [{iterations: 1, start: 1, end: 100, duration: 60}]}
+        }
+    },
     status = {
         _id: 'a123',
         ok: true,
@@ -121,6 +130,18 @@ module.exports.mockServer = http.createServer(function (request, response) {
         }
         else {
             response.end(JSON.stringify({error: 'login', reason: 'test'}));
+        }
+    }
+    else if (request.url === '/api/1/parse') {
+        response.writeHead(200, {'content-type': 'application/json'});
+        if(process.env['BLITZ_API_USER'] === 'user') {
+            response.end(JSON.stringify(parseSprint));
+        }
+        else if (process.env['BLITZ_API_USER'] === 'user2') {
+            response.end(JSON.stringify(parseRush));
+        }
+        else {
+            response.end(JSON.stringify({error: 'parse', reason: 'test'}));
         }
     }
     else if (request.url === '/api/1/jobs/a123/status') {

@@ -1,4 +1,5 @@
 var testServerPort = 9295,
+    helper = require('../helper'),
     Sprint = require('../../lib/blitz/sprint'),
     credentials = {username: 'user', apiKey: 'key', host: 'localhost', port: 9295};
 
@@ -6,9 +7,16 @@ describe("Sprint", function () {
     var sprint;
     
     beforeEach(function() {
+        // Test server. Will be handling the requests sent by the tests.
+        helper.mockServer.listen(testServerPort);
+
         sprint = new Sprint();
     });
     
+    afterEach(function () {
+        helper.mockServer.close();
+    });
+
     it("should have a Result object", function () {
         var finished = false;
         runs (function() {

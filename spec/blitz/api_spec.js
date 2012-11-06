@@ -6,15 +6,19 @@ var testServerPort = 9295,
 // set environment variable needed for the tests
 process.env['BLITZ_API_USER'] = 'user';
 
-// Test server. Will be handling the requests sent by the tests.
-helper.mockServer.listen(testServerPort);
-
 describe("API Client", function () {
     var client; 
     
     beforeEach(function () {
+        // Test server. Will be handling the requests sent by the tests.
+        helper.mockServer.listen(testServerPort);
+
         client = new api.Client(credentials['username'], credentials['apiKey'],
             'localhost', testServerPort);
+    });
+
+    afterEach(function () {
+        helper.mockServer.close();
     });
 
     describe("execute", function () {
