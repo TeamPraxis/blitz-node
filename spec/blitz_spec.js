@@ -1,16 +1,23 @@
 var testServerPort = 9295,
+    helper = require('./helper'),
     Blitz = require('../lib/blitz.js');
-
-//needed by the mock server to compare usernames
-process.env['BLITZ_API_USER'] = 'user';
 
 describe("Blitz", function () {
     var blitz;
     
     beforeEach(function () {
+        // Test server. Will be handling the requests sent by the tests.
+        helper.mockServer.listen(testServerPort);
+        //needed by the mock server to compare usernames
+        process.env['BLITZ_API_USER'] = 'user';
+
         blitz = new Blitz('user', 'key', 'localhost', 9295);
     });
     
+    afterEach(function () {
+        helper.mockServer.close();
+    });
+
     it("should return a Rush Result object", function () {
         var finished = false;
         runs (function() {
@@ -72,6 +79,8 @@ describe("Blitz", function () {
     });
 
     it('should execute a Rush', function () {
+        process.env['BLITZ_API_USER'] = 'user2';
+        blitz = new Blitz('user2', 'key', 'localhost', 9295);
         var finished = false;
         runs (function() {
             runner = blitz.execute('-p 1-100:60 -u c123 http://127.0.0.1 /2');
