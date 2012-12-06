@@ -1,4 +1,6 @@
-var http = require('http'),
+var https = require('https'),
+    path = require('path'),
+    fs = require('fs'),
     mockServer = null,
     about = {
         _id: 'abc123',
@@ -101,70 +103,76 @@ var http = require('http'),
         }        
     };
 
-module.exports.mockServer = http.createServer(function (request, response) {
-    if (request.url === '/api/1/curl/execute') {
-        var data = '';
-        request.addListener('data', function(chunk) {data += chunk;});
-        request.addListener('end', function() {
-            var parsedData = JSON.parse(data);
-            if (parsedData.steps[0].timeout) {
-                response.writeHead(404);
+module.exports.mockServer = https.createServer(
+    {
+        key: fs.readFileSync(path.resolve(__dirname, 'mock-server-key.pem')), 
+        cert: fs.readFileSync(path.resolve(__dirname, 'mock-server-cert.pem'))
+    }, 
+    function (request, response) {
+        if (request.url === '/api/1/curl/execute') {
+            var data = '';
+            request.addListener('data', function(chunk) {data += chunk;});
+            request.addListener('end', function() {
+                var parsedData = JSON.parse(data);
+                if (parsedData.steps[0].timeout) {
+                    response.writeHead(404);
+                }
+                else {
+                    var id = 'a123';
+                    if (parsedData.steps[0].user) {
+                        id = parsedData.steps[0].user;
+                    }
+                    response.writeHead(200, {'content-type': 'application/json'});
+                    response.write(JSON.stringify({ok: true, job_id: id}));
+                }
+                response.end();
+            });        
+        }
+        else if (request.url === '/login/api') {
+            response.writeHead(200, {'content-type': 'application/json'});
+            if(request.headers['x-api-user'] === process.env['BLITZ_API_USER'] &&
+                request.headers['x-api-key'] === 'key') {
+                
+                response.end(JSON.stringify({ok: true, api_key: '123'}));
             }
             else {
-                var id = 'a123';
-                if (parsedData.steps[0].user) {
-                    id = parsedData.steps[0].user;
-                }
-                response.writeHead(200, {'content-type': 'application/json'});
-                response.write(JSON.stringify({ok: true, job_id: id}));
+                response.end(JSON.stringify({error: 'login', reason: 'test'}));
             }
-            response.end();
-        });        
-    }
-    else if (request.url === '/login/api') {
-        response.writeHead(200, {'content-type': 'application/json'});
-        if(request.headers['x-api-user'] === process.env['BLITZ_API_USER'] &&
-            request.headers['x-api-key'] === 'key') {
-            
-            response.end(JSON.stringify({ok: true, api_key: '123'}));
         }
-        else {
-            response.end(JSON.stringify({error: 'login', reason: 'test'}));
+        else if (request.url === '/api/1/parse') {
+            response.writeHead(200, {'content-type': 'application/json'});
+            if(process.env['BLITZ_API_USER'] === 'user') {
+                response.end(JSON.stringify(parseSprint));
+            }
+            else if (process.env['BLITZ_API_USER'] === 'user2') {
+                response.end(JSON.stringify(parseRush));
+            }
+            else {
+                response.end(JSON.stringify({error: 'parse', reason: 'test'}));
+            }
         }
-    }
-    else if (request.url === '/api/1/parse') {
-        response.writeHead(200, {'content-type': 'application/json'});
-        if(process.env['BLITZ_API_USER'] === 'user') {
-            response.end(JSON.stringify(parseSprint));
+        else if (request.url === '/api/1/jobs/a123/status') {
+            status.status = 'completed';
+            response.writeHead(200, {'content-type': 'application/json'});
+            response.end(JSON.stringify(status));
         }
-        else if (process.env['BLITZ_API_USER'] === 'user2') {
-            response.end(JSON.stringify(parseRush));
+        else if (request.url === '/api/1/jobs/b123/status') {
+            status._id = 'b123';
+            status.status = 'running';
+            response.writeHead(200, {'content-type': 'application/json'});
+            response.end(JSON.stringify(status));
         }
-        else {
-            response.end(JSON.stringify({error: 'parse', reason: 'test'}));
+        else if (request.url === '/api/1/jobs/c123/status') {
+            timeline.status = 'completed';
+            response.writeHead(200, {'content-type': 'application/json'});
+            response.end(JSON.stringify(timeline));
         }
+        else if (request.url === '/api/1/account/about') {
+            response.writeHead(200, {'content-type': 'application/json'});
+            response.end(JSON.stringify(about));
+        }
+        response.writeHead(404);
     }
-    else if (request.url === '/api/1/jobs/a123/status') {
-        status.status = 'completed';
-        response.writeHead(200, {'content-type': 'application/json'});
-        response.end(JSON.stringify(status));
-    }
-    else if (request.url === '/api/1/jobs/b123/status') {
-        status._id = 'b123';
-        status.status = 'running';
-        response.writeHead(200, {'content-type': 'application/json'});
-        response.end(JSON.stringify(status));
-    }
-    else if (request.url === '/api/1/jobs/c123/status') {
-        timeline.status = 'completed';
-        response.writeHead(200, {'content-type': 'application/json'});
-        response.end(JSON.stringify(timeline));
-    }
-    else if (request.url === '/api/1/account/about') {
-        response.writeHead(200, {'content-type': 'application/json'});
-        response.end(JSON.stringify(about));
-    }
-    response.writeHead(404);
-});
+);
 
 
